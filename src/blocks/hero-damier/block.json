@@ -1,0 +1,82 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "sif/hero-damier",
+  "title": "Hero Damier",
+  "category": "text",
+  "icon": "columns",
+  "description": "Section hero en damier avec contenu a gauche et image a droite, positions inversables",
+  "keywords": [
+    "hero",
+    "damier",
+    "split",
+    "colonnes",
+    "image"
+  ],
+  "textdomain": "siteforge",
+  "styles": [
+    {
+      "name": "default",
+      "label": "Par défaut",
+      "isDefault": true
+    },
+    {
+      "name": "rounded",
+      "label": "Image arrondie"
+    }
+  ],
+  "supports": {
+    "align": [
+      "wide",
+      "full"
+    ],
+    "anchor": true,
+    "html": false
+  },
+  "example": {
+    "attributes": {
+      "reversed": false
+    },
+    "innerBlocks": [
+      {
+        "name": "core/heading",
+        "attributes": {
+          "level": 2,
+          "content": "Titre de la section"
+        }
+      },
+      {
+        "name": "core/paragraph",
+        "attributes": {
+          "content": "Description de votre contenu ici."
+        }
+      }
+    ]
+  },
+  "siteforge": {
+    "fields": {
+      "image": {
+        "type": "image",
+        "label": "Image",
+        "help": "Image affichee dans la colonne droite (ou gauche si inverse)",
+        "return_value": "object"
+      },
+      "imageAlt": {
+        "type": "text",
+        "label": "Texte alternatif",
+        "placeholder": "Description de l'image...",
+        "help": "Texte alternatif pour l'accessibilite"
+      },
+      "reversed": {
+        "type": "checkbox",
+        "label": "Inverser les colonnes",
+        "default": false,
+        "help": "Place l'image a gauche et le contenu a droite"
+      },
+      "buttonIcon": {
+        "type": "icon",
+        "label": "Icône"
+      }
+    }
+  }
+}
