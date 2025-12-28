@@ -8,11 +8,25 @@ if (!defined('ABSPATH')) {
 
 class Blocks {
 
-    public function __construct() {
+    /**
+     * Field Renderer instance
+     *
+     * @var FieldRenderer
+     */
+    private $field_renderer;
+
+    /**
+     * Constructor
+     *
+     * @param FieldRenderer  $field_renderer Field renderer instance
+     */
+    public function __construct(FieldRenderer $field_renderer) {
+
+        $this->field_renderer = $field_renderer;
         // Initialisation des blocs
         add_action('init', array($this, 'create_block_multi_block_plugin_block_init'));
 
-        add_filter('allowed_block_types_all', array($this, 'register_blocks'), 10, 2);
+        add_filter('allowed_block_types_all', array($this, 'enable_blocks'), 10, 2);
         add_filter('block_categories_all', array($this, 'add_custom_categories'));
 
         // Charger les scripts de l'éditeur
@@ -110,7 +124,7 @@ class Blocks {
         $fields = [];
 
         // If siteforge.fields exists in block.json, merge field definitions into attributes
-        if (!empty($block_json['siteforge']['fields']) && false) {
+        if (!empty($block_json['siteforge']['fields'])) {
             $fields = $block_json['siteforge']['fields'];
 
             // Convert fields to attributes
@@ -119,9 +133,10 @@ class Blocks {
             // Merge with existing attributes from block.json
             $existing_attributes = $block_json['attributes'] ?? [];
             $register_args['attributes'] = array_merge($existing_attributes, $field_attributes);
+            sif_log('Attributes for block ' . $block_name . ': ' . print_r($register_args['attributes'], true));
         }
         // Localize field definitions for JavaScript
-        // $this->localize_block_fields($block_name, $fields, $block_json);
+        $this->localize_block_fields($block_name, $fields, $block_json);
 
         // Add render callback if render.php exists
         $render_php_path = $block_data['path'] . 'render.php';
@@ -207,7 +222,7 @@ class Blocks {
      * @param object $editor_context Contexte de l'éditeur
      * @return array $sif_blocks_list Liste des blocs SiteForge autorisés
      */
-    public function register_blocks($allowed_blocks, $editor_context) {
+    public function enable_blocks($allowed_blocks, $editor_context) {
 
         $sif_blocks_list = get_option('sif_blocks_list');
         $sif_blocks_list = apply_filters('sif_blocks_list', $sif_blocks_list, $editor_context);
@@ -444,5 +459,56 @@ class Blocks {
         }
 
         return null;
+    }
+
+
+    /**
+     * Localize block fields for JavaScript
+     *
+     * @param string $block_name Block name
+     * @param array  $fields     Field definitions
+     */
+    private function localize_block_fields($block_name, $fields, $block_json = []) {
+        static $localized_blocks = [];
+
+        if (in_array($block_name, $localized_blocks, true)) {
+            return;
+        }
+
+        $prepared_fields = $this->field_renderer->prepare_fields_for_js($fields);
+
+        // Add to global JS object
+        if (!isset($GLOBALS['siteforge_blocks_data'])) {
+            $GLOBALS['siteforge_blocks_data'] = [];
+        }
+
+        // Préparer la configuration innerBlocks
+        $inner_blocks_config = $block_json['siteforge']['innerBlocks'] ?? null;
+
+        $GLOBALS['siteforge_blocks_data'][$block_name] = [
+            'fields' => $prepared_fields,
+            'title' => $block_json['title'] ?? $block_name,
+            'description' => $block_json['description'] ?? '',
+            'icon' => $block_json['icon'] ?? 'block-default',
+            'category' => $block_json['category'] ?? 'siteforge',
+            'supports' => $block_json['supports'] ?? [],
+            'innerBlocks' => $inner_blocks_config,
+        ];
+
+        $localized_blocks[] = $block_name;
+
+        // Ensure the data gets localized to the script
+        add_action('admin_footer', function () {
+            if (!empty($GLOBALS['siteforge_blocks_data'])) {
+?>
+                <script type="text/javascript">
+                    window.siteforgeBlocks = window.siteforgeBlocks || {};
+                    <?php foreach ($GLOBALS['siteforge_blocks_data'] as $name => $data): ?>
+                        window.siteforgeBlocks['<?php echo esc_js($name); ?>'] = <?php echo wp_json_encode($data); ?>;
+                    <?php endforeach; ?>
+                </script>
+<?php
+            }
+        }, 99);
     }
 }
