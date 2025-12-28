@@ -7,6 +7,29 @@ $siteforge_block_context = [
     'block' => null,
 ];
 
+/**
+ * Définit le contexte du bloc (appelé par Blocks avant le render)
+ */
+function siteforge_set_block_context($attributes, $content, $block) {
+    global $siteforge_block_context;
+    $siteforge_block_context = [
+        'attributes' => $attributes,
+        'content' => $content,
+        'block' => $block,
+    ];
+}
+
+/**
+ * Réinitialise le contexte après le render
+ */
+function siteforge_clear_block_context() {
+    global $siteforge_block_context;
+    $siteforge_block_context = [
+        'attributes' => [],
+        'content' => '',
+        'block' => null,
+    ];
+}
 
 /**
  * Récupère un attribut du bloc courant
@@ -123,6 +146,151 @@ if (!function_exists('image_url')) {
         }
 
         return '';
+    }
+}
+
+if (!function_exists('image_id')) {
+    /**
+     * Récupère l'ID d'une image depuis différents formats
+     */
+    function image_id($value) {
+        if (empty($value)) {
+            return null;
+        }
+        if (is_array($value) && !empty($value['id'])) {
+            return (int) $value['id'];
+        }
+        if (is_numeric($value)) {
+            return (int) $value;
+        }
+        return null;
+    }
+}
+
+if (!function_exists('image')) {
+    /**
+     * Génère une balise img responsive
+     */
+    function image($value, $size = 'large', $attributes = []) {
+        $id = image_id($value);
+
+        if ($id) {
+            return wp_get_attachment_image($id, $size, false, $attributes);
+        }
+
+        $url = image_url($value, $size);
+        if (!$url) {
+            return '';
+        }
+
+        // Fallback pour URL sans ID
+        $attrs = build_attributes([
+            'src' => $url,
+            'alt' => $attributes['alt'] ?? '',
+            'class' => $attributes['class'] ?? '',
+            'loading' => 'lazy',
+        ]);
+
+        return '<img ' . $attrs . '>';
+    }
+}
+
+if (!function_exists('build_attributes')) {
+    /**
+     * Construit une chaîne d'attributs HTML
+     */
+    function build_attributes($attributes) {
+        $parts = [];
+
+        foreach ($attributes as $name => $value) {
+            if ($value === true) {
+                $parts[] = esc_attr($name);
+            } elseif ($value !== false && $value !== null && $value !== '') {
+                $parts[] = sprintf('%s="%s"', esc_attr($name), esc_attr($value));
+            }
+        }
+
+        return implode(' ', $parts);
+    }
+}
+
+if (!function_exists('button_classes')) {
+    /**
+     * Génère les classes CSS d'un bouton
+     */
+    function button_classes($style = 'primary', $size = 'medium', $extras = []) {
+        $base = 'inline-flex items-center justify-center font-semibold rounded-lg transition-all duration-300';
+
+        $styles = [
+            'primary' => 'bg-blue-600 text-white hover:bg-blue-700 hover:scale-105',
+            'secondary' => 'bg-purple-600 text-white hover:bg-purple-700 hover:scale-105',
+            'outline' => 'border-2 border-current hover:bg-white hover:text-gray-900',
+            'ghost' => 'hover:bg-gray-100 text-gray-700',
+        ];
+
+        $sizes = [
+            'small' => 'px-4 py-2 text-sm',
+            'medium' => 'px-6 py-3 text-base',
+            'large' => 'px-8 py-4 text-lg',
+        ];
+
+        return classes(
+            $base,
+            $styles[$style] ?? $styles['primary'],
+            $sizes[$size] ?? $sizes['medium'],
+            $extras
+        );
+    }
+}
+
+if (!function_exists('button')) {
+    /**
+     * Génère un lien stylisé en bouton
+     */
+    function button($text, $url = '#', $options = []) {
+        $style = $options['style'] ?? 'primary';
+        $size = $options['size'] ?? 'medium';
+        $class = $options['class'] ?? '';
+        $target = $options['target'] ?? '';
+        $attrs = $options['attrs'] ?? [];
+
+        $btn_classes = button_classes($style, $size, [$class]);
+
+        $attributes = array_merge([
+            'href' => esc_url($url),
+            'class' => $btn_classes,
+        ], $attrs);
+
+        if ($target) {
+            $attributes['target'] = $target;
+            if ($target === '_blank') {
+                $attributes['rel'] = 'noopener noreferrer';
+            }
+        }
+
+        return sprintf(
+            '<a %s>%s</a>',
+            build_attributes($attributes),
+            esc_html($text)
+        );
+    }
+}
+
+if (!function_exists('html')) {
+    /**
+     * Échappe du HTML sécurisé (autorise les balises standard)
+     */
+    function html($content) {
+        return wp_kses_post($content);
+    }
+}
+
+if (!function_exists('text')) {
+    /**
+     * Échappe du texte simple
+     */
+    function text($text) {
+        return esc_html($text);
     }
 }
 
