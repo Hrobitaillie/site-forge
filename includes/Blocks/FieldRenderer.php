@@ -68,7 +68,6 @@ class FieldRenderer {
      */
     private function field_to_attribute($field) {
         $type = $field['type'] ?? 'text';
-        sif_log($field);
         $attribute = [
             'type' => $this->map_field_type_to_attribute_type($type, $field),
         ];

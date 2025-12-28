@@ -133,7 +133,6 @@ class Blocks {
             // Merge with existing attributes from block.json
             $existing_attributes = $block_json['attributes'] ?? [];
             $register_args['attributes'] = array_merge($existing_attributes, $field_attributes);
-            sif_log('Attributes for block ' . $block_name . ': ' . print_r($register_args['attributes'], true));
         }
         // Localize field definitions for JavaScript
         $this->localize_block_fields($block_name, $fields, $block_json);
@@ -341,23 +340,9 @@ class Blocks {
             }
         }
 
-        // Enqueue le script principal de l'éditeur
-        wp_enqueue_script(
-            'sif-block-editor',
-            SIF_URL . 'assets/js/block-editor.js',
-            ['wp-blocks', 'wp-element', 'wp-block-editor'],
-            SIF_VERSION,
-            true
-        );
-
-        // Passer les données au JS
-        wp_localize_script('sif-block-editor', 'sifBlocks', $blocks_data);
-
-        // Config globale pour les blocs (sprite icons, REST URL, etc.)
-        wp_localize_script('sif-block-editor', 'siteforgeConfig', [
-            'spriteUrl' => get_stylesheet_directory_uri() . '/siteforge/src/sprites/lucide_sprite.svg',
-            'restUrl'   => rest_url('siteforge/v1'),
-        ]);
+        // Note: Le script principal siteforge-block-editor est chargé dans Main.php
+        // Il utilise build/js/editor.js avec le système avancé de field controls
+        // Les données des blocs sont localisées via window.siteforgeBlocks dans localize_block_fields()
     }
 
     /**

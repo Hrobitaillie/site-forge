@@ -76,15 +76,15 @@ class Main {
 
         wp_enqueue_style(
             'siteforge-block-editor',
-            SITEFORGE_PLUGIN_URL . 'assets/css/block-editor.css',
+            SIF_URL . 'assets/css/block-editor.css',
             $deps,
-            SITEFORGE_VERSION
+            SIF_VERSION
         );
 
         // Enqueue block editor script
         wp_enqueue_script(
             'siteforge-block-editor',
-            SITEFORGE_PLUGIN_URL . 'assets/js/block-editor/index.js',
+            SIF_URL . 'build/js/editor.js',
             [
                 'wp-blocks',
                 'wp-element',
@@ -97,7 +97,7 @@ class Main {
                 'wp-server-side-render',
                 'wp-api-fetch',
             ],
-            SITEFORGE_VERSION,
+            SIF_VERSION,
             true
         );
 
