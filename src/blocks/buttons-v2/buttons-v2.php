@@ -6,6 +6,7 @@
  * @param array  $attributes
  * @param string $content
  */
+$data     = $attributes['data'] ?? array();
 $buttons  = $data['buttons'] ?? array();
 $settings = $data['settings'] ?? array();
 

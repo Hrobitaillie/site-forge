@@ -126,6 +126,304 @@ if (!function_exists('image_url')) {
     }
 }
 
+if (!function_exists('sif_maybe_get')) {
+    /**
+     * Version SiteForge de acf_maybe_get
+     * (gère aussi les objets)
+     *
+     * @param array|object $data    Tableau ou objet à parcourir.
+     * @param int|string   $key     Clé ou propriété à récupérer.
+     * @param null         $default Valeur de retour par défaut si la clé n'existe pas.
+     *
+     * @return mixed|null  La valeur trouvée ou la valeur par défaut.
+     */
+    function sif_maybe_get($data, $key = 0, $default = null) {
+        if (is_object($data)) {
+            $data = (object) $data;
+            return isset($data->$key) ? $data->$key : $default;
+        } elseif (is_array($data)) {
+            $data = (array) $data;
+            return isset($data[$key]) ? $data[$key] : $default;
+        }
+        return $default;
+    }
+}
+
+if (!function_exists('sif_btn')) {
+    /**
+     * Affiche un bouton avec un lien et des options personnalisables.
+     *
+     * @param array $link Données du lien (type, url, title, target, value, etc.)
+     * @param array $args Arguments du bouton (type, icon, icon_position, class, etc.)
+     */
+    function sif_btn($link = array(), $args = array()) {
+        // Si le lien paramètre est une chaîne, on le convertit
+        if (is_string($link)) {
+            $link = array(
+                'type'  => 'url',
+                'url'   => $args['link'] ?? '',
+                'title' => $args['title'] ?? '',
+            );
+            unset($args['link'], $args['title']);
+        }
+
+        if (!is_array($link)) {
+            return;
+        }
+
+        $overrides = sif_maybe_get($args, 'overrides');
+        if ($overrides && is_array($overrides)) {
+            $link = wp_parse_args($overrides, $link);
+        }
+
+        if (empty(sif_maybe_get($link, 'title')) && sif_maybe_get($args, 'force_title') === true) {
+            $link['title'] = sif_maybe_get($link, 'name', '');
+        }
+
+        // Génération dynamique de l'URL selon le type de lien
+        $link_type = sif_maybe_get($link, 'type');
+        if (!empty($link_type)) {
+            $dynamic_url = '';
+            $value = sif_maybe_get($link, 'value');
+
+            switch ($link_type) {
+                case 'page':
+                case 'post':
+                    if ($value) {
+                        $dynamic_url = get_permalink($value);
+                    }
+                    break;
+                case 'term':
+                    if ($value) {
+                        $dynamic_url = get_term_link($value);
+                        if (is_wp_error($dynamic_url)) {
+                            $dynamic_url = '';
+                        }
+                    }
+                    break;
+                case 'archive':
+                    if ($value) {
+                        $dynamic_url = get_post_type_archive_link($value);
+                    }
+                    break;
+                case 'mail':
+                    if ($value) {
+                        $dynamic_url = str_starts_with($value, 'mailto:') ? $value : 'mailto:' . $value;
+                    }
+                    break;
+                case 'phone':
+                    if ($value) {
+                        $dynamic_url = str_starts_with($value, 'tel:') ? $value : 'tel:' . $value;
+                    }
+                    break;
+            }
+
+            if ($dynamic_url) {
+                $link['url'] = $dynamic_url;
+            }
+        }
+
+        $btn_type = sif_maybe_get($args, 'type', 'btn-primary');
+
+        // Vérifie si un template part spécifique pour ce type existe
+        $specific_template_path = get_template_directory() . '/siteforge/src/buttons/' . $btn_type . '.php';
+
+        // Prépare les arguments pour le template
+        $template_args = array(
+            'title'         => sif_maybe_get($link, 'title', ''),
+            'type'          => $btn_type,
+            'icon'          => sif_maybe_get($args, 'icon', 'arrow-right'),
+            'icon_position' => sif_maybe_get($args, 'icon_position', 'after'),
+            'link'          => $link,
+            'class'         => sif_maybe_get($args, 'class', '') . ' ' . sif_maybe_get($link, 'class_gtm', ''),
+            'html_tag'      => sif_maybe_get($args, 'html_tag', ''),
+            'tabindex'      => sif_maybe_get($args, 'tabindex', ''),
+            'before_title'  => sif_maybe_get($args, 'before_title', ''),
+            'after_title'   => sif_maybe_get($args, 'after_title', ''),
+            'around_title'  => sif_maybe_get($args, 'around_title', array()),
+            'force_title'   => sif_maybe_get($args, 'force_title', false),
+            'download'      => sif_maybe_get($args, 'download', false),
+            'data'          => sif_maybe_get($args, 'data', array()),
+        );
+
+        // Ajoute tous les autres arguments non inclus
+        foreach ($args as $key => $value) {
+            if (!isset($template_args[$key])) {
+                $template_args[$key] = $value;
+            }
+        }
+
+        if (file_exists($specific_template_path)) {
+            get_template_part('siteforge/src/buttons/' . $btn_type, null, $template_args);
+        } else {
+            get_template_part('siteforge/src/buttons/button', null, $template_args);
+        }
+    }
+}
+
+if (!function_exists('_sif_build_attrs')) {
+    /**
+     * Construit une chaîne d'attributs HTML à partir d'un tableau.
+     *
+     * @param array|string $attrs   Tableau d'attributs ou chaîne de classes
+     * @param array        $options Options (skip_empty: bool)
+     * @return string Chaîne d'attributs HTML
+     */
+    function _sif_build_attrs($attrs, $options = array()): string {
+        $defaults = array('skip_empty' => false);
+        $options = wp_parse_args($options, $defaults);
+
+        if (is_string($attrs)) {
+            return !empty($attrs) ? sprintf('class="%s"', esc_attr($attrs)) : '';
+        }
+
+        if (!is_array($attrs)) {
+            return '';
+        }
+
+        $url_attrs = array('href', 'src', 'action', 'poster', 'cite', 'formaction');
+        $attr_parts = array();
+
+        if (!empty($attrs['class'])) {
+            $attr_parts[] = sprintf('class="%s"', esc_attr($attrs['class']));
+        }
+
+        if (!empty($attrs['data']) && is_array($attrs['data'])) {
+            foreach ($attrs['data'] as $key => $value) {
+                $attr_parts[] = sprintf('data-%s="%s"', esc_attr($key), esc_attr($value));
+            }
+        }
+
+        if (!empty($attrs['attrs']) && is_array($attrs['attrs'])) {
+            foreach ($attrs['attrs'] as $attr_name => $attr_value) {
+                if ($options['skip_empty'] && ($attr_value === null || $attr_value === '')) {
+                    continue;
+                }
+                $escape_func = in_array($attr_name, $url_attrs, true) ? 'esc_url' : 'esc_attr';
+                $attr_parts[] = sprintf('%s="%s"', esc_attr($attr_name), $escape_func($attr_value));
+            }
+        }
+
+        return implode(' ', $attr_parts);
+    }
+}
+
+if (!function_exists('get_svg')) {
+    /**
+     * Récupère un SVG depuis un sprite.
+     *
+     * @param string       $icon   Nom de l'icône
+     * @param string|null  $sprite Nom du fichier sprite (sans extension)
+     * @param array        $args   Attributs HTML à ajouter au SVG
+     * @return string|null HTML du SVG ou null si non trouvé
+     */
+    function get_svg($icon, $sprite = null, $args = array()) {
+        if (null === $sprite) {
+            $sprite = 'lucide_sprite';
+        }
+
+        $icon_id = $icon;
+
+        if ($sprite === false) {
+            if (defined('DOING_AJAX') && DOING_AJAX) {
+                $sprite = 'project';
+            } else {
+                return null;
+            }
+        }
+
+        // Charger le fichier SVG depuis le thème
+        $svg_path = get_stylesheet_directory() . '/siteforge/src/' . $sprite . '.svg';
+        // Fallback vers sprites/
+        if (!file_exists($svg_path)) {
+            $svg_path = get_stylesheet_directory() . '/siteforge/src/sprites/' . $sprite . '.svg';
+        }
+
+        if (!file_exists($svg_path)) {
+            return null;
+        }
+
+        $svg_content = file_get_contents($svg_path);
+        if ($svg_content === false) {
+            return null;
+        }
+
+        // Extraire le symbol et ses attributs
+        $pattern = '/<symbol([^>]*id="' . preg_quote($icon_id, '/') . '"[^>]*)>(.*?)<\/symbol>/is';
+        if (!preg_match($pattern, $svg_content, $matches)) {
+            return null;
+        }
+
+        $attributes_string = $matches[1];
+        $content = $matches[2];
+
+        // Extraire les attributs du symbol
+        $symbol_attrs = array();
+        if (preg_match('/viewBox="([^"]*)"/', $attributes_string, $viewbox_match)) {
+            $symbol_attrs['viewBox'] = $viewbox_match[1];
+        }
+        if (preg_match('/width="([^"]*)"/', $attributes_string, $width_match)) {
+            $symbol_attrs['width'] = $width_match[1];
+        }
+        if (preg_match('/height="([^"]*)"/', $attributes_string, $height_match)) {
+            $symbol_attrs['height'] = $height_match[1];
+        }
+
+        $default_attrs = array('aria-hidden' => 'true');
+        $final_attrs = array_merge($default_attrs, $symbol_attrs, $args);
+
+        $default_class = (strpos($sprite, 'lucide') === 0) ? 'sif-lucide-icon' : 'sif-svg-icon';
+        $icon_class = $default_class . ' ' . $default_class . '-' . esc_attr($icon_id);
+
+        if (isset($final_attrs['class'])) {
+            $icon_class .= ' ' . $final_attrs['class'];
+            unset($final_attrs['class']);
+        }
+
+        $attrs_string = ' ' . _sif_build_attrs(array(
+            'class' => $icon_class,
+            'attrs' => $final_attrs,
+        ));
+
+        return sprintf('<svg%s>%s</svg>', $attrs_string, $content);
+    }
+}
+
+if (!function_exists('svg')) {
+    /**
+     * Affiche un SVG depuis un sprite.
+     */
+    function svg($icon, $sprite = null, $args = array()) {
+        echo get_svg($icon, $sprite, $args);
+    }
+}
+
+if (!function_exists('icon')) {
+    /**
+     * Récupère une icône Lucide.
+     *
+     * @param string $iconName Nom de l'icône
+     * @param array  $attrs    Attributs HTML
+     * @param string $sprite   Nom du sprite
+     * @return string HTML du SVG
+     */
+    function icon($iconName, $attrs = [], $sprite = 'lucide_sprite') {
+        if (empty($iconName)) {
+            return '';
+        }
+        return get_svg($iconName, $sprite, $attrs);
+    }
+}
+
+if (!function_exists('the_icon')) {
+    /**
+     * Affiche une icône Lucide.
+     */
+    function the_icon($iconName, $attrs = [], $sprite = 'lucide_sprite') {
+        echo icon($iconName, $attrs, $sprite);
+    }
+}
+
 if (!function_exists('sif_log')) {
     /**
      * Version améliorée de acf_log() qui affiche le fichier et la ligne du log.
