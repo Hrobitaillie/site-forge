@@ -76,6 +76,55 @@ export default function Edit({ attributes, setAttributes, clientId }) {
   const [buttonStylesData, setButtonStylesData] = useState([]); // Garde les données complètes
   const [loadingStyles, setLoadingStyles] = useState(true);
 
+  // State pour la modale d'icônes (au niveau parent pour éviter les problèmes de z-index)
+  const [iconPickerState, setIconPickerState] = useState({
+    isOpen: false,
+    buttonIndex: null,
+    currentValue: '',
+  });
+  const [lucideIcons, setLucideIcons] = useState([]);
+  const [loadingIcons, setLoadingIcons] = useState(false);
+  const [iconSearchQuery, setIconSearchQuery] = useState("");
+
+  // URL du sprite Lucide
+  const spriteUrl = window.siteforgeConfig?.spriteUrl || '';
+
+  // Charger les icônes quand la modale s'ouvre
+  useEffect(() => {
+    if (iconPickerState.isOpen && lucideIcons.length === 0) {
+      const fetchIcons = async () => {
+        setLoadingIcons(true);
+        try {
+          const data = await apiFetch({ path: '/siteforge/v1/icons' });
+          setLucideIcons(data.icons || []);
+        } catch (error) {
+          console.error('[buttons-v2] Erreur lors de la récupération des icônes:', error);
+          setLucideIcons([]);
+        } finally {
+          setLoadingIcons(false);
+        }
+      };
+      fetchIcons();
+    }
+  }, [iconPickerState.isOpen, lucideIcons.length]);
+
+  // Fonctions pour la modale d'icônes
+  const openIconPicker = (buttonIndex, currentValue) => {
+    setIconSearchQuery("");
+    setIconPickerState({ isOpen: true, buttonIndex, currentValue });
+  };
+
+  const closeIconPicker = () => {
+    setIconPickerState({ isOpen: false, buttonIndex: null, currentValue: '' });
+  };
+
+  const handleIconSelect = (iconSlug) => {
+    if (iconPickerState.buttonIndex !== null) {
+      updateButton(iconPickerState.buttonIndex, "icon", iconSlug);
+    }
+    closeIconPicker();
+  };
+
   // Vérifier et ajouter les IDs manquants aux boutons existants
   useEffect(() => {
     const buttonsNeedIds = buttons.some(btn => !btn.id);
@@ -456,47 +505,8 @@ export default function Edit({ attributes, setAttributes, clientId }) {
     );
   };
 
-  // Composant de sélection d'icônes Lucide
-  const LucideIconPicker = ({ value, onChange }) => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [searchQuery, setSearchQuery] = useState("");
-    const [lucideIcons, setLucideIcons] = useState([]);
-    const [loadingIcons, setLoadingIcons] = useState(false);
-
-    // URL du sprite Lucide depuis la config SiteForge
-    const spriteUrl = window.siteforgeConfig?.spriteUrl || '';
-
-    // Récupère les icônes depuis l'API REST SiteForge
-    useEffect(() => {
-      const fetchIcons = async () => {
-        setLoadingIcons(true);
-        console.log('[buttons-v2] Fetching icons from API...');
-        try {
-          const data = await apiFetch({ path: '/siteforge/v1/icons' });
-          console.log('[buttons-v2] Icons received:', data);
-          setLucideIcons(data.icons || []);
-        } catch (error) {
-          console.error('[buttons-v2] Erreur lors de la récupération des icônes:', error);
-          setLucideIcons([]);
-        } finally {
-          setLoadingIcons(false);
-        }
-      };
-
-      if (isModalOpen && lucideIcons.length === 0) {
-        fetchIcons();
-      }
-    }, [isModalOpen, lucideIcons.length]);
-
-    const filteredIcons = lucideIcons.filter(icon =>
-      icon.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
-    const handleIconSelect = (iconSlug) => {
-      onChange(iconSlug);
-      setIsModalOpen(false);
-    };
-
+  // Composant simplifié de sélection d'icônes (la modale est rendue au niveau parent)
+  const LucideIconPicker = ({ value, buttonIndex }) => {
     const currentIconPreview = value && spriteUrl ? (
       <svg
         width="16"
@@ -516,128 +526,27 @@ export default function Edit({ attributes, setAttributes, clientId }) {
     ) : null;
 
     return (
-      <>
-        <BaseControl label="Icône Lucide">
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            {currentIconPreview}
-            <Button
-              variant="secondary"
-              onClick={() => setIsModalOpen(true)}
-              style={{ flex: 1 }}
-            >
-              {value ? `Changer l'icône (${value})` : "Ajouter une icône"}
-            </Button>
-            {value && (
-              <Button
-                isDestructive
-                variant="secondary"
-                onClick={() => onChange("")}
-                icon={trash}
-                label="Supprimer l'icône"
-              />
-            )}
-          </div>
-        </BaseControl>
-
-        {isModalOpen && (
-          <Modal
-            title="Sélectionner une icône Lucide"
-            onRequestClose={() => setIsModalOpen(false)}
-            style={{ maxWidth: "800px", minWidth: "400px", zIndex: 1000001 }}
+      <BaseControl label="Icône Lucide">
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          {currentIconPreview}
+          <Button
+            variant="secondary"
+            onClick={() => openIconPicker(buttonIndex, value)}
+            style={{ flex: 1 }}
           >
-            <div>
-              <SearchControl
-                value={searchQuery}
-                onChange={setSearchQuery}
-                placeholder="Rechercher une icône..."
-                style={{ marginBottom: "16px" }}
-              />
-
-              {searchQuery && (
-                <div style={{ marginBottom: "8px", fontSize: "12px", color: "#666" }}>
-                  {sprintf(
-                    _n(
-                      '%1$s résultat pour "%2$s"',
-                      '%1$s résultats pour "%2$s"',
-                      filteredIcons.length,
-                      'siteforge'
-                    ),
-                    new Intl.NumberFormat("fr-FR").format(filteredIcons.length),
-                    searchQuery
-                  )}
-                </div>
-              )}
-
-              {loadingIcons ? (
-                <div style={{ textAlign: "center", padding: "40px" }}>
-                  <Spinner />
-                  <p style={{ marginTop: "12px", color: "#666" }}>
-                    Chargement des icônes...
-                  </p>
-                </div>
-              ) : (
-                <>
-                  <div style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fill, minmax(50px, 1fr))",
-                    gap: "4px",
-                    maxHeight: "400px",
-                    overflowY: "auto",
-                    border: "1px solid #ddd",
-                    borderRadius: "4px",
-                    padding: "12px",
-                    width: "400px",
-                  }}>
-                    {filteredIcons.slice(0, 100).map((iconSlug) => (
-                      <Button
-                        key={iconSlug}
-                        variant={value === iconSlug ? "primary" : "secondary"}
-                        onClick={() => handleIconSelect(iconSlug)}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          padding: "8px",
-                          minHeight: "40px",
-                          minWidth: "40px",
-                        }}
-                        title={iconSlug}
-                      >
-                        <svg
-                          width="20"
-                          height="20"
-                          viewBox="0 0 24 24"
-                          style={{
-                            fill: "none",
-                            stroke: "currentColor",
-                            strokeWidth: 2,
-                            strokeLinecap: "round",
-                            strokeLinejoin: "round"
-                          }}
-                        >
-                          <use href={`${spriteUrl}#${iconSlug}`} />
-                        </svg>
-                      </Button>
-                    ))}
-                  </div>
-
-                  {filteredIcons.length > 100 && (
-                    <p style={{ textAlign: "center", color: "#888", fontSize: "12px", marginTop: "12px" }}>
-                      ... et {new Intl.NumberFormat("fr-FR").format(filteredIcons.length - 100)} autres résultats. Affinez votre recherche
-                    </p>
-                  )}
-                </>
-              )}
-
-              {!loadingIcons && filteredIcons.length === 0 && (
-                <p style={{ textAlign: "center", color: "#666", marginTop: "20px" }}>
-                  Aucune icône trouvée pour "{searchQuery}"
-                </p>
-              )}
-            </div>
-          </Modal>
-        )}
-      </>
+            {value ? `Changer l'icône (${value})` : "Ajouter une icône"}
+          </Button>
+          {value && (
+            <Button
+              isDestructive
+              variant="secondary"
+              onClick={() => updateButton(buttonIndex, "icon", "")}
+              icon={trash}
+              label="Supprimer l'icône"
+            />
+          )}
+        </div>
+      </BaseControl>
     );
   };
 
@@ -896,9 +805,7 @@ export default function Edit({ attributes, setAttributes, clientId }) {
                             <div style={{ marginTop: "16px" }}>
                               <LucideIconPicker
                                 value={btn.icon || ""}
-                                onChange={(iconSlug) =>
-                                  updateButton(index, "icon", iconSlug)
-                                }
+                                buttonIndex={index}
                               />
                             </div>
                           )}
@@ -995,6 +902,110 @@ export default function Edit({ attributes, setAttributes, clientId }) {
           + Ajouter un bouton
         </Button>
       </div>
+
+      {/* Modale de sélection d'icônes (rendue au niveau racine pour éviter les problèmes de z-index) */}
+      {iconPickerState.isOpen && (
+        <Modal
+          title="Sélectionner une icône Lucide"
+          onRequestClose={closeIconPicker}
+          className="sif-icon-picker-modal"
+          overlayClassName="sif-icon-picker-overlay"
+        >
+          <div>
+            <SearchControl
+              value={iconSearchQuery}
+              onChange={setIconSearchQuery}
+              placeholder="Rechercher une icône..."
+              style={{ marginBottom: "16px" }}
+            />
+
+            {iconSearchQuery && (
+              <div style={{ marginBottom: "8px", fontSize: "12px", color: "#666" }}>
+                {sprintf(
+                  _n(
+                    '%1$s résultat pour "%2$s"',
+                    '%1$s résultats pour "%2$s"',
+                    lucideIcons.filter(icon => icon.toLowerCase().includes(iconSearchQuery.toLowerCase())).length,
+                    'siteforge'
+                  ),
+                  new Intl.NumberFormat("fr-FR").format(lucideIcons.filter(icon => icon.toLowerCase().includes(iconSearchQuery.toLowerCase())).length),
+                  iconSearchQuery
+                )}
+              </div>
+            )}
+
+            {loadingIcons ? (
+              <div style={{ textAlign: "center", padding: "40px" }}>
+                <Spinner />
+                <p style={{ marginTop: "12px", color: "#666" }}>
+                  Chargement des icônes...
+                </p>
+              </div>
+            ) : (
+              <>
+                <div style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(50px, 1fr))",
+                  gap: "4px",
+                  maxHeight: "400px",
+                  overflowY: "auto",
+                  border: "1px solid #ddd",
+                  borderRadius: "4px",
+                  padding: "12px",
+                  width: "400px",
+                }}>
+                  {lucideIcons
+                    .filter(icon => icon.toLowerCase().includes(iconSearchQuery.toLowerCase()))
+                    .slice(0, 100)
+                    .map((iconSlug) => (
+                      <Button
+                        key={iconSlug}
+                        variant={iconPickerState.currentValue === iconSlug ? "primary" : "secondary"}
+                        onClick={() => handleIconSelect(iconSlug)}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          padding: "8px",
+                          minHeight: "40px",
+                          minWidth: "40px",
+                        }}
+                        title={iconSlug}
+                      >
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          style={{
+                            fill: "none",
+                            stroke: "currentColor",
+                            strokeWidth: 2,
+                            strokeLinecap: "round",
+                            strokeLinejoin: "round"
+                          }}
+                        >
+                          <use href={`${spriteUrl}#${iconSlug}`} />
+                        </svg>
+                      </Button>
+                    ))}
+                </div>
+
+                {lucideIcons.filter(icon => icon.toLowerCase().includes(iconSearchQuery.toLowerCase())).length > 100 && (
+                  <p style={{ textAlign: "center", color: "#888", fontSize: "12px", marginTop: "12px" }}>
+                    ... et {new Intl.NumberFormat("fr-FR").format(lucideIcons.filter(icon => icon.toLowerCase().includes(iconSearchQuery.toLowerCase())).length - 100)} autres résultats. Affinez votre recherche
+                  </p>
+                )}
+              </>
+            )}
+
+            {!loadingIcons && lucideIcons.filter(icon => icon.toLowerCase().includes(iconSearchQuery.toLowerCase())).length === 0 && (
+              <p style={{ textAlign: "center", color: "#666", marginTop: "20px" }}>
+                Aucune icône trouvée pour "{iconSearchQuery}"
+              </p>
+            )}
+          </div>
+        </Modal>
+      )}
     </>
   );
 }

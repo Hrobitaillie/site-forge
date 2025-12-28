@@ -52,3 +52,14 @@
   opacity: 1;
   pointer-events: auto;
 }
+
+/* Forcer le z-index de la modale d'icônes au-dessus des popovers */
+.sif-icon-picker-overlay {
+  z-index: 1000001 !important;
+}
+
+.sif-icon-picker-modal {
+  z-index: 1000002 !important;
+  max-width: 800px;
+  min-width: 400px;
+}
