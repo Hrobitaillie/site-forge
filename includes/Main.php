@@ -3,6 +3,7 @@
 namespace SiteForge;
 
 use SiteForge\Blocks\Blocks;
+use SiteForge\Blocks\InnerBlocksComponent;
 use SiteForge\RestAPI;
 
 class Main {
@@ -40,6 +41,9 @@ class Main {
      * Initialize plugin components
      */
     private function init_components() {
+        // Initialize InnerBlocks processor (adds filter for <InnerBlocks /> tags)
+        InnerBlocksComponent::get_instance();
+
         $blocks = new Blocks();
         $restApi = new RestAPI();
     }
