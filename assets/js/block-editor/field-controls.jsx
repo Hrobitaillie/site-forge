@@ -1032,18 +1032,85 @@ export const RepeaterField = ({ field, value, onChange }) => {
     // Support both 'fields' (from block.json) and 'sub_fields' (legacy)
     const subFields = config.fields || config.sub_fields;
 
+    // State to track which items are open (by default, all are open)
+    const [openItems, setOpenItems] = useState(() => {
+        // Initialize all items as open
+        const initial = {};
+        items.forEach((_, index) => {
+            initial[index] = true;
+        });
+        return initial;
+    });
+
+    // Toggle item open/closed state
+    const toggleItem = (index) => {
+        setOpenItems((prev) => ({
+            ...prev,
+            [index]: !prev[index],
+        }));
+    };
+
+    // Get a preview text for collapsed items
+    const getItemPreview = (item) => {
+        if (!item || !subFields) return '';
+
+        // Try to find a meaningful preview from the first text-like field
+        const previewFields = ['title', 'name', 'label', 'quote', 'text', 'heading'];
+        for (const fieldName of previewFields) {
+            if (item[fieldName] && typeof item[fieldName] === 'string') {
+                const preview = item[fieldName].substring(0, 50);
+                return preview + (item[fieldName].length > 50 ? '...' : '');
+            }
+        }
+
+        // Fallback: use first non-empty string value
+        for (const [key, val] of Object.entries(item)) {
+            if (typeof val === 'string' && val.trim()) {
+                const preview = val.substring(0, 50);
+                return preview + (val.length > 50 ? '...' : '');
+            }
+        }
+
+        return '';
+    };
+
     // Handlers utilisant arrayHelpers
     const addItem = () => {
         const newItem = createRepeaterItemDefaults(subFields);
+        const newIndex = items.length;
         onChange(arrayHelpers.add(items, newItem));
+        // Open the new item
+        setOpenItems((prev) => ({ ...prev, [newIndex]: true }));
     };
 
     const removeItem = (index) => {
         onChange(arrayHelpers.remove(items, index));
+        // Clean up state for removed item
+        setOpenItems((prev) => {
+            const newState = { ...prev };
+            delete newState[index];
+            // Reindex items after the removed one
+            const reindexed = {};
+            Object.keys(newState).forEach((key) => {
+                const keyNum = parseInt(key, 10);
+                if (keyNum > index) {
+                    reindexed[keyNum - 1] = newState[key];
+                } else {
+                    reindexed[keyNum] = newState[key];
+                }
+            });
+            return reindexed;
+        });
     };
 
     const moveItem = (fromIndex, toIndex) => {
         onChange(arrayHelpers.move(items, fromIndex, toIndex));
+        // Swap open states
+        setOpenItems((prev) => ({
+            ...prev,
+            [fromIndex]: prev[toIndex],
+            [toIndex]: prev[fromIndex],
+        }));
     };
 
     const updateItem = (index, itemValue) => {
@@ -1055,49 +1122,89 @@ export const RepeaterField = ({ field, value, onChange }) => {
             <FieldLabel label={field.label} help={config.help} />
 
             <div className="siteforge-repeater-items">
-                {items.map((item, index) => (
-                    <div key={index} className="siteforge-repeater-item">
-                        <div className="siteforge-repeater-item-header">
-                            <span className="siteforge-repeater-item-title">
-                                {__('Item', 'siteforge')} {index + 1}
-                            </span>
-                            <div className="siteforge-repeater-item-actions">
-                                {index > 0 && (
-                                    <Button
-                                        variant="tertiary"
-                                        icon="arrow-up-alt2"
-                                        onClick={() => moveItem(index, index - 1)}
-                                        label={__('Move up', 'siteforge')}
-                                        size="small"
-                                    />
-                                )}
-                                {index < items.length - 1 && (
-                                    <Button
-                                        variant="tertiary"
-                                        icon="arrow-down-alt2"
-                                        onClick={() => moveItem(index, index + 1)}
-                                        label={__('Move down', 'siteforge')}
-                                        size="small"
-                                    />
-                                )}
+                {items.map((item, index) => {
+                    const isOpen = openItems[index] !== false;
+                    const preview = !isOpen ? getItemPreview(item) : '';
+
+                    return (
+                        <div
+                            key={index}
+                            className={`siteforge-repeater-item ${isOpen ? 'is-open' : 'is-collapsed'}`}
+                        >
+                            <div
+                                className="siteforge-repeater-item-header"
+                                onClick={() => toggleItem(index)}
+                                style={{ cursor: 'pointer' }}
+                            >
                                 <Button
                                     variant="tertiary"
-                                    isDestructive
-                                    icon="trash"
-                                    onClick={() => removeItem(index)}
-                                    label={__('Remove', 'siteforge')}
+                                    icon={isOpen ? 'arrow-down' : 'arrow-right'}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        toggleItem(index);
+                                    }}
+                                    label={isOpen ? __('Collapse', 'siteforge') : __('Expand', 'siteforge')}
                                     size="small"
+                                    style={{ marginRight: '4px' }}
                                 />
+                                <span className="siteforge-repeater-item-title">
+                                    {__('Item', 'siteforge')} {index + 1}
+                                    {preview && (
+                                        <span
+                                            style={{
+                                                marginLeft: '8px',
+                                                color: '#757575',
+                                                fontWeight: 'normal',
+                                                fontSize: '12px',
+                                            }}
+                                        >
+                                            — {preview}
+                                        </span>
+                                    )}
+                                </span>
+                                <div
+                                    className="siteforge-repeater-item-actions"
+                                    onClick={(e) => e.stopPropagation()}
+                                >
+                                    {index > 0 && (
+                                        <Button
+                                            variant="tertiary"
+                                            icon="arrow-up-alt2"
+                                            onClick={() => moveItem(index, index - 1)}
+                                            label={__('Move up', 'siteforge')}
+                                            size="small"
+                                        />
+                                    )}
+                                    {index < items.length - 1 && (
+                                        <Button
+                                            variant="tertiary"
+                                            icon="arrow-down-alt2"
+                                            onClick={() => moveItem(index, index + 1)}
+                                            label={__('Move down', 'siteforge')}
+                                            size="small"
+                                        />
+                                    )}
+                                    <Button
+                                        variant="tertiary"
+                                        isDestructive
+                                        icon="trash"
+                                        onClick={() => removeItem(index)}
+                                        label={__('Remove', 'siteforge')}
+                                        size="small"
+                                    />
+                                </div>
                             </div>
-                        </div>
 
-                        <div className="siteforge-repeater-item-fields">
-                            {renderSubFields(subFields, item, (subName, subValue) => {
-                                updateItem(index, { ...item, [subName]: subValue });
-                            })}
+                            {isOpen && (
+                                <div className="siteforge-repeater-item-fields">
+                                    {renderSubFields(subFields, item, (subName, subValue) => {
+                                        updateItem(index, { ...item, [subName]: subValue });
+                                    })}
+                                </div>
+                            )}
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
 
             <Button
