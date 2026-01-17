@@ -1,0 +1,146 @@
+/**
+ * SiteForge Admin Styles
+ * Styles pour les pages d'administration (futur)
+ */
+
+.siteforge-admin-page {
+    max-width: 1200px;
+    margin: 20px auto;
+}
+
+.siteforge-admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.siteforge-admin-title {
+    font-size: 23px;
+    font-weight: 400;
+    margin: 0;
+    padding: 0;
+    line-height: 1.3;
+}
+
+.siteforge-admin-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* Cards */
+.siteforge-card {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.siteforge-card-title {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.siteforge-card-content {
+    color: #50575e;
+}
+
+/* Stats */
+.siteforge-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.siteforge-stat {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 16px;
+    text-align: center;
+}
+
+.siteforge-stat-value {
+    font-size: 32px;
+    font-weight: 600;
+    color: #2271b1;
+    margin-bottom: 4px;
+}
+
+.siteforge-stat-label {
+    font-size: 13px;
+    color: #646970;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Block List */
+.siteforge-block-list {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+}
+
+.siteforge-block-item {
+    padding: 16px;
+    border-bottom: 1px solid #f0f0f1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.siteforge-block-item:last-child {
+    border-bottom: none;
+}
+
+.siteforge-block-item:hover {
+    background: #f6f7f7;
+}
+
+.siteforge-block-info {
+    flex: 1;
+}
+
+.siteforge-block-name {
+    font-weight: 600;
+    color: #1d2327;
+    margin-bottom: 4px;
+}
+
+.siteforge-block-path {
+    font-size: 12px;
+    color: #646970;
+    font-family: 'Courier New', monospace;
+}
+
+.siteforge-block-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* Notices */
+.siteforge-notice {
+    border-left: 4px solid;
+    padding: 12px;
+    margin: 16px 0;
+    background: #fff;
+}
+
+.siteforge-notice-success {
+    border-color: #00a32a;
+}
+
+.siteforge-notice-warning {
+    border-color: #dba617;
+}
+
+.siteforge-notice-error {
+    border-color: #d63638;
+}
+
+.siteforge-notice-info {
+    border-color: #2271b1;
+}

@@ -108,6 +108,8 @@ const renderSubFields = (subFields, values, onFieldChange) => {
 export const TextField = ({ field, value, onChange }) => (
     <FieldWrapper type="text">
         <TextControl
+            __next40pxDefaultSize
+            __nextHasNoMarginBottom
             label={field.label}
             value={value || ''}
             onChange={onChange}
@@ -124,6 +126,7 @@ export const TextField = ({ field, value, onChange }) => (
 export const TextareaField = ({ field, value, onChange }) => (
     <FieldWrapper type="textarea">
         <TextareaControl
+            __nextHasNoMarginBottom
             label={field.label}
             value={value || ''}
             onChange={onChange}
@@ -158,6 +161,8 @@ export const NumberField = ({ field, value, onChange }) => {
     return (
         <FieldWrapper type="number">
             <TextControl
+                __next40pxDefaultSize
+                __nextHasNoMarginBottom
                 label={field.label}
                 type="number"
                 value={value !== undefined ? value : ''}
@@ -198,6 +203,8 @@ export const RangeField = ({ field, value, onChange }) => {
 export const UrlField = ({ field, value, onChange }) => (
     <FieldWrapper type="url">
         <TextControl
+            __next40pxDefaultSize
+            __nextHasNoMarginBottom
             label={field.label}
             type="url"
             value={value || ''}
@@ -214,6 +221,8 @@ export const UrlField = ({ field, value, onChange }) => (
 export const EmailField = ({ field, value, onChange }) => (
     <FieldWrapper type="email">
         <TextControl
+            __next40pxDefaultSize
+            __nextHasNoMarginBottom
             label={field.label}
             type="email"
             value={value || ''}
@@ -237,6 +246,8 @@ export const SelectField = ({ field, value, onChange }) => {
     return (
         <FieldWrapper type="select">
             <SelectControl
+                __next40pxDefaultSize
+                __nextHasNoMarginBottom
                 label={field.label}
                 value={value || field.config?.default || ''}
                 options={options}
@@ -253,6 +264,7 @@ export const SelectField = ({ field, value, onChange }) => {
 export const CheckboxField = ({ field, value, onChange }) => (
     <FieldWrapper type="checkbox">
         <CheckboxControl
+            __nextHasNoMarginBottom
             label={field.label}
             checked={value || false}
             onChange={onChange}
@@ -482,6 +494,8 @@ export const IconField = ({ field, value, onChange }) => {
                     >
                         {/* Barre de recherche */}
                         <TextControl
+                            __next40pxDefaultSize
+                            __nextHasNoMarginBottom
                             placeholder={__('Rechercher une icône...', 'siteforge')}
                             value={searchTerm}
                             onChange={setSearchTerm}
@@ -684,6 +698,8 @@ export const LinkField = ({ field, value, onChange }) => {
 
             {/* Champ Label (commun à tous les modes) */}
             <TextControl
+                __next40pxDefaultSize
+                __nextHasNoMarginBottom
                 label={__('Texte du lien', 'siteforge')}
                 value={linkValue.label || ''}
                 onChange={(val) => updateLink('label', val)}
@@ -693,6 +709,8 @@ export const LinkField = ({ field, value, onChange }) => {
             {/* Champs spécifiques selon le mode */}
             {linkValue.mode === 'link' && (
                 <TextControl
+                    __next40pxDefaultSize
+                    __nextHasNoMarginBottom
                     label={__('URL', 'siteforge')}
                     type="url"
                     value={linkValue.url || ''}
@@ -731,6 +749,8 @@ export const LinkField = ({ field, value, onChange }) => {
 
             {linkValue.mode === 'phone' && (
                 <TextControl
+                    __next40pxDefaultSize
+                    __nextHasNoMarginBottom
                     label={__('Numéro de téléphone', 'siteforge')}
                     type="tel"
                     value={linkValue.phone || ''}
@@ -741,6 +761,8 @@ export const LinkField = ({ field, value, onChange }) => {
 
             {linkValue.mode === 'email' && (
                 <TextControl
+                    __next40pxDefaultSize
+                    __nextHasNoMarginBottom
                     label={__('Adresse email', 'siteforge')}
                     type="email"
                     value={linkValue.email || ''}
@@ -752,6 +774,8 @@ export const LinkField = ({ field, value, onChange }) => {
             {/* Target (pour tous les modes sauf phone/email) */}
             {(linkValue.mode === 'link' || linkValue.mode === 'page') && (
                 <SelectControl
+                    __next40pxDefaultSize
+                    __nextHasNoMarginBottom
                     label={__('Ouvrir dans', 'siteforge')}
                     value={linkValue.target || '_self'}
                     options={[
@@ -889,6 +913,8 @@ export const ButtonField = ({ field, value, onChange }) => {
                     <Spinner />
                 ) : (
                     <SelectControl
+                        __next40pxDefaultSize
+                        __nextHasNoMarginBottom
                         label={__('Style du bouton', 'siteforge')}
                         value={buttonValue.style}
                         options={buttonStyles}
@@ -1003,7 +1029,8 @@ export const ButtonField = ({ field, value, onChange }) => {
 export const RepeaterField = ({ field, value, onChange }) => {
     const items = Array.isArray(value) ? value : [];
     const config = field.config || {};
-    const subFields = config.sub_fields;
+    // Support both 'fields' (from block.json) and 'sub_fields' (legacy)
+    const subFields = config.fields || config.sub_fields;
 
     // Handlers utilisant arrayHelpers
     const addItem = () => {
@@ -1090,7 +1117,8 @@ export const RepeaterField = ({ field, value, onChange }) => {
 export const GroupField = ({ field, value, onChange }) => {
     const groupValue = value || {};
     const config = field.config || {};
-    const subFields = config.sub_fields;
+    // Support both 'fields' (from block.json) and 'sub_fields' (legacy)
+    const subFields = config.fields || config.sub_fields;
 
     return (
         <FieldWrapper type="group">

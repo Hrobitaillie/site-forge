@@ -1,0 +1,252 @@
+/**
+ * SiteForge Block Editor Styles
+ * Styles pour l'éditeur Gutenberg
+ */
+
+/* Field Controls */
+.siteforge-field-control {
+    margin-bottom: 16px;
+}
+
+.siteforge-field-control:last-child {
+    margin-bottom: 0;
+}
+
+/* Image Control */
+.siteforge-image-control {
+    margin-bottom: 16px;
+}
+
+.siteforge-image-control label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #1e1e1e;
+}
+
+.siteforge-image-control img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+
+.siteforge-image-control .components-button {
+    margin-right: 8px;
+}
+
+/* WYSIWYG Control */
+.siteforge-wysiwyg-control {
+    margin-bottom: 16px;
+}
+
+.siteforge-wysiwyg-control label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #1e1e1e;
+}
+
+.siteforge-wysiwyg-control .block-editor-rich-text__editable {
+    border: 1px solid #949494;
+    border-radius: 2px;
+    padding: 8px 12px;
+    min-height: 100px;
+}
+
+.siteforge-wysiwyg-control .block-editor-rich-text__editable:focus {
+    border-color: #2271b1;
+    box-shadow: 0 0 0 1px #2271b1;
+}
+
+/* Repeater Control */
+.siteforge-repeater-control {
+    margin-bottom: 16px;
+}
+
+.siteforge-repeater-control > label {
+    display: block;
+    margin-bottom: 12px;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #1e1e1e;
+}
+
+.siteforge-repeater-item {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 12px;
+    margin-bottom: 8px;
+    background: #fff;
+    position: relative;
+}
+
+.siteforge-repeater-item:hover {
+    border-color: #949494;
+}
+
+.siteforge-repeater-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.siteforge-repeater-item-title {
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.siteforge-repeater-item-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.siteforge-repeater-add {
+    margin-top: 8px;
+}
+
+/* Group Control */
+.siteforge-group-control {
+    margin-bottom: 16px;
+}
+
+.siteforge-group-control > label {
+    display: block;
+    margin-bottom: 12px;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #1e1e1e;
+}
+
+.siteforge-group-fields {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 12px;
+    background: #fafafa;
+}
+
+.siteforge-group-fields .siteforge-field-control {
+    background: #fff;
+    padding: 8px;
+    border-radius: 2px;
+}
+
+/* Number Control */
+.siteforge-number-control input[type="number"] {
+    width: 100%;
+}
+
+/* URL Control */
+.siteforge-url-control input[type="url"] {
+    width: 100%;
+}
+
+/* Email Control */
+.siteforge-email-control input[type="email"] {
+    width: 100%;
+}
+
+/* Color Control */
+.siteforge-color-control .components-color-picker {
+    margin-top: 8px;
+}
+
+/* Help Text */
+.siteforge-field-help {
+    font-size: 12px;
+    font-style: normal;
+    color: #757575;
+    margin-top: 4px;
+}
+
+/* Required Indicator */
+.siteforge-field-label-required::after {
+    content: " *";
+    color: #d63638;
+}
+
+/* Panel Spacing */
+.components-panel__body .siteforge-field-control:first-child {
+    margin-top: 0;
+}
+
+/* Loading State */
+.siteforge-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    color: #757575;
+}
+
+.siteforge-loading::before {
+    content: "";
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ddd;
+    border-top-color: #2271b1;
+    border-radius: 50%;
+    margin-right: 8px;
+    animation: siteforge-spin 0.6s linear infinite;
+}
+
+@keyframes siteforge-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Error State */
+.siteforge-error {
+    padding: 12px;
+    background: #fcf0f1;
+    border-left: 4px solid #d63638;
+    color: #50575e;
+    margin-bottom: 16px;
+}
+
+.siteforge-error-title {
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+/* Empty State */
+.siteforge-empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #757575;
+}
+
+.siteforge-empty-state-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.3;
+}
+
+.siteforge-empty-state-text {
+    font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 782px) {
+    .siteforge-repeater-item-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .siteforge-repeater-item-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}

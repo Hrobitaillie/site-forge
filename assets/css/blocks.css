@@ -1,0 +1,121 @@
+/**
+ * SiteForge Blocks - Frontend Styles
+ * Tailwind CSS 4 pour tous les blocs du plugin
+ *
+ * Hérite du design system du thème via l'import du CSS généré
+ */
+
+/* Import du design system du thème (source de vérité) */
+@layer base, components, utilities;
+
+@import "../../../../themes/sif-starter-theme/assets/src/_design-system.css";
+
+@import "tailwindcss";
+
+/* Scanner les fichiers PHP des blocs pour les classes Tailwind */
+@source "../../blocks/**/*.php";
+
+/**
+ * Styles de base pour les blocs
+ */
+@layer base {
+  /* Reset minimal pour les blocs */
+  .siteforge-block {
+    @apply box-border;
+  }
+}
+
+@utility siteforge-button{
+  @apply inline-flex items-center justify-center px-6 py-3 rounded-md font-medium transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2;
+}
+/**
+ * Composants spécifiques aux blocs
+ */
+@layer components {
+  /* Bloc Hero */
+  .hero-block {
+    @apply relative overflow-hidden;
+  }
+
+  .hero-block .hero-inner-content {
+    @apply space-y-4;
+  }
+
+  .hero-block .hero-inner-content > * {
+    @apply text-inherit;
+  }
+
+
+  .siteforge-button-primary {
+    @apply siteforge-button bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-600;
+  }
+
+  .siteforge-button-secondary {
+    @apply siteforge-button bg-purple-600 text-white hover:bg-purple-700 focus:ring-purple-600;
+  }
+
+  .siteforge-button-outline {
+    @apply siteforge-button border-2 border-current hover:bg-white hover:text-gray-900 focus:ring-gray-900;
+  }
+
+  /* Card component */
+  .siteforge-card {
+    @apply bg-white rounded-xl shadow-lg p-6 transition-shadow duration-300 hover:shadow-xl;
+  }
+}
+
+/**
+ * Utilitaires personnalisés
+ */
+@layer utilities {
+  /* Animation fade-in */
+  .animate-fade-in {
+    animation: siteforge-fade-in 0.5s ease-in-out;
+  }
+
+  @keyframes siteforge-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Animation slide-up */
+  .animate-slide-up {
+    animation: siteforge-slide-up 0.5s ease-out;
+  }
+
+  @keyframes siteforge-slide-up {
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  /* Gradient text */
+  .text-gradient-siteforge {
+    @apply bg-clip-text text-transparent bg-linear-to-r from-primary to-secondary;
+  }
+}
+
+/**
+ * Styles spécifiques aux blocs individuels
+ * Ajoutez ici les styles pour vos blocs custom
+ */
+
+/* Exemple: styles additionnels pour le bloc Hero */
+.hero-block .container {
+  @apply mx-auto px-4;
+  max-width: 1400px;
+}
+
+/* Styles pour l'éditeur (si nécessaire) */
+.block-editor-block-list__block[data-type^="siteforge/"] {
+  @apply my-4;
+}

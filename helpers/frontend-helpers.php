@@ -49,6 +49,32 @@ if (!function_exists('attr')) {
 }
 
 /**
+ * Récupère tous les attributs du bloc courant avec des valeurs par défaut
+ *
+ * @param array $defaults Tableau des valeurs par défaut
+ * @return object Objet avec tous les attributs
+ *
+ * @example
+ * $a = block_data([
+ *     'title' => 'Default Title',
+ *     'image' => '',
+ *     'reversed' => false,
+ * ]);
+ * echo $a->title;
+ */
+if (!function_exists('block_data')) {
+    function block_data($defaults = []) {
+        global $siteforge_block_context;
+        $attributes = $siteforge_block_context['attributes'] ?? [];
+
+        // Merge defaults with actual attributes
+        $merged = array_merge($defaults, $attributes);
+
+        return (object) $merged;
+    }
+}
+
+/**
  * Vérifie si un style de bloc est actif
  *
  * @param string $styleName Nom du style (ex: 'rounded', 'outline')
@@ -529,12 +555,34 @@ if (!function_exists('get_svg')) {
         $symbol_attrs = array();
         if (preg_match('/viewBox="([^"]*)"/', $attributes_string, $viewbox_match)) {
             $symbol_attrs['viewBox'] = $viewbox_match[1];
+        } else {
+            // Fallback viewBox - priorité: args > sprite-specific > défaut
+            if (!empty($args['viewBox'])) {
+                $symbol_attrs['viewBox'] = $args['viewBox'];
+            } elseif (strpos($sprite, 'lucide') !== false) {
+                // Lucide icons sont toujours 24x24
+                $symbol_attrs['viewBox'] = '0 0 24 24';
+            } else {
+                // Fallback générique pour éviter le rognage
+                $symbol_attrs['viewBox'] = '0 0 24 24';
+            }
         }
         if (preg_match('/width="([^"]*)"/', $attributes_string, $width_match)) {
             $symbol_attrs['width'] = $width_match[1];
         }
         if (preg_match('/height="([^"]*)"/', $attributes_string, $height_match)) {
             $symbol_attrs['height'] = $height_match[1];
+        }
+
+        // Attributs par défaut pour les icônes Lucide (stroke-based)
+        if (strpos($sprite, 'lucide') !== false) {
+            $symbol_attrs = array_merge([
+                'fill' => 'none',
+                'stroke' => 'currentColor',
+                'stroke-width' => '2',
+                'stroke-linecap' => 'round',
+                'stroke-linejoin' => 'round',
+            ], $symbol_attrs);
         }
 
         $default_attrs = array('aria-hidden' => 'true');

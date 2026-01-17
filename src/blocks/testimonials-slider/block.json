@@ -1,0 +1,130 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "sif/testimonials-slider",
+  "title": "Témoignages Slider",
+  "category": "text",
+  "icon": "format-quote",
+  "description": "Carrousel de témoignages clients avec photos, notes, logos et vidéos",
+  "keywords": ["testimonials", "slider", "avis", "clients", "carrousel", "reviews"],
+  "textdomain": "siteforge",
+  "styles": [
+    {
+      "name": "default",
+      "label": "Glassmorphism",
+      "isDefault": true
+    },
+    {
+      "name": "cards",
+      "label": "Cartes solides"
+    },
+    {
+      "name": "minimal",
+      "label": "Minimal"
+    }
+  ],
+  "supports": {
+    "align": ["wide", "full"],
+    "anchor": true,
+    "html": false
+  },
+  "example": {
+    "attributes": {
+      "testimonials": [
+        {
+          "quote": "Une expérience exceptionnelle qui a transformé notre façon de travailler.",
+          "authorName": "Marie Dupont",
+          "authorRole": "Directrice Marketing",
+          "rating": 5
+        }
+      ]
+    }
+  },
+  "siteforge": {
+    "fields": {
+      "sectionTitle": {
+        "type": "text",
+        "label": "Titre de section",
+        "placeholder": "Ce que nos clients disent..."
+      },
+      "sectionSubtitle": {
+        "type": "textarea",
+        "label": "Sous-titre",
+        "placeholder": "Description optionnelle...",
+        "rows": 2
+      },
+      "testimonials": {
+        "type": "repeater",
+        "label": "Témoignages",
+        "button_label": "Ajouter un témoignage",
+        "fields": {
+          "quote": {
+            "type": "textarea",
+            "label": "Citation",
+            "placeholder": "Le témoignage du client...",
+            "rows": 4
+          },
+          "rating": {
+            "type": "number",
+            "label": "Note (1-5)",
+            "min": 1,
+            "max": 5,
+            "default": 5
+          },
+          "authorPhoto": {
+            "type": "image",
+            "label": "Photo",
+            "return_value": "object"
+          },
+          "authorName": {
+            "type": "text",
+            "label": "Nom",
+            "placeholder": "Jean Dupont"
+          },
+          "authorRole": {
+            "type": "text",
+            "label": "Poste / Profession",
+            "placeholder": "Directeur Marketing"
+          },
+          "companyLogo": {
+            "type": "image",
+            "label": "Logo entreprise",
+            "return_value": "object"
+          },
+          "companyName": {
+            "type": "text",
+            "label": "Nom entreprise",
+            "placeholder": "Acme Corp"
+          },
+          "videoUrl": {
+            "type": "text",
+            "label": "URL Vidéo (YouTube/Vimeo)",
+            "placeholder": "https://youtube.com/watch?v=..."
+          }
+        }
+      },
+      "autoplay": {
+        "type": "checkbox",
+        "label": "Lecture automatique",
+        "default": false
+      },
+      "autoplaySpeed": {
+        "type": "number",
+        "label": "Vitesse (secondes)",
+        "min": 2,
+        "max": 10,
+        "default": 5
+      },
+      "showNavigation": {
+        "type": "checkbox",
+        "label": "Afficher les flèches",
+        "default": true
+      },
+      "showPagination": {
+        "type": "checkbox",
+        "label": "Afficher la pagination",
+        "default": true
+      }
+    }
+  }
+}

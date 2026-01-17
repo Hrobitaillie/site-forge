@@ -1,0 +1,7 @@
+{
+  "assets/css/blocks.css": {
+    "file": "blocks.min.css",
+    "src": "assets/css/blocks.css",
+    "isEntry": true
+  }
+}
