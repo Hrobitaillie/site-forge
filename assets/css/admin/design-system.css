@@ -1,0 +1,518 @@
+/**
+ * Design System Admin Styles
+ *
+ * FSE-style admin page for managing the design system.
+ */
+
+/* Hide WordPress admin chrome for fullscreen mode */
+body.siteforge-design-system-page.is-fullscreen-mode {
+    #wpcontent,
+    #wpfooter {
+        margin-left: 0;
+    }
+
+    #adminmenumain,
+    #wpadminbar {
+        display: none;
+    }
+
+    #wpbody-content {
+        padding-bottom: 0;
+    }
+
+    #wpbody {
+        padding-top: 0;
+    }
+}
+
+/* App container */
+.siteforge-admin-app {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #f0f0f0;
+    z-index: 99999;
+}
+
+/* Loading state */
+.siteforge-admin-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 12px;
+    color: #757575;
+}
+
+.siteforge-admin-loading .spinner {
+    margin: 0;
+}
+
+/* Main layout */
+.siteforge-admin-layout {
+    display: flex;
+    height: 100%;
+    width: 100%;
+}
+
+/* ===================================
+   SIDEBAR
+   =================================== */
+.siteforge-admin-sidebar {
+    width: 280px;
+    min-width: 280px;
+    background: #1e1e1e;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #333;
+}
+
+.siteforge-sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid #333;
+}
+
+.siteforge-sidebar-logo {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #3858e9;
+    border-radius: 6px;
+    color: #fff;
+}
+
+.siteforge-sidebar-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.siteforge-sidebar-nav {
+    flex: 1;
+    padding: 12px 0;
+    overflow-y: auto;
+}
+
+.siteforge-sidebar-nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.siteforge-sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 10px 20px;
+    background: none;
+    border: none;
+    color: #ccc;
+    font-size: 13px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.siteforge-sidebar-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+}
+
+.siteforge-sidebar-item.is-active {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.siteforge-sidebar-item svg {
+    stroke: currentColor;
+}
+.siteforge-color-card-actions .components-button svg,
+.components-menu-item__button.components-button svg,
+.siteforge-color-actions .components-button svg {
+    fill: none;
+    stroke: currentColor;
+}
+
+.siteforge-sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid #333;
+}
+
+.siteforge-sidebar-theme {
+    font-size: 12px;
+    color: #999;
+    margin: 0;
+}
+
+/* ===================================
+   MAIN CONTENT
+   =================================== */
+.siteforge-admin-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    overflow: hidden;
+}
+
+/* Header */
+.siteforge-admin-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-bottom: 1px solid #e0e0e0;
+    background: #fff;
+    min-height: 60px;
+}
+
+.siteforge-admin-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.siteforge-admin-header h1 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+    color: #1e1e1e;
+}
+
+.siteforge-unsaved-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 8px;
+    background: #fef3cd;
+    color: #856404;
+    font-size: 11px;
+    font-weight: 500;
+    border-radius: 4px;
+}
+
+.siteforge-admin-header-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* Notices */
+.siteforge-notice {
+    margin: 16px 24px 0;
+}
+
+/* Content area */
+.siteforge-admin-content {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+}
+
+/* Loading container */
+.siteforge-loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    gap: 12px;
+    color: #757575;
+}
+
+/* ===================================
+   COLOR EDITOR
+   =================================== */
+.siteforge-color-editor {
+    max-width: 1200px;
+}
+
+.siteforge-color-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.siteforge-color-empty {
+    text-align: center;
+    padding: 48px 24px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    color: #757575;
+}
+
+.siteforge-color-empty p {
+    margin: 0 0 8px;
+}
+
+/* Color Card */
+.siteforge-color-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 16px;
+    position: relative;
+}
+
+.siteforge-color-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.siteforge-color-name {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.siteforge-color-name-button {
+    background: none;
+    border: none;
+    padding: 4px 8px;
+    margin: -4px -8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e1e1e;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.15s ease;
+}
+
+.siteforge-color-name-button:hover {
+    background: #f0f0f0;
+}
+
+.siteforge-color-name-input {
+    font-size: 14px;
+    font-weight: 600;
+    padding: 4px 8px;
+    margin: -4px -8px;
+    border: 1px solid #3858e9;
+    border-radius: 4px;
+    outline: none;
+    width: 200px;
+}
+
+.siteforge-color-card-actions {
+    display: flex;
+    gap: 4px;
+}
+
+/* Color Swatches */
+.siteforge-color-swatches {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+.siteforge-color-base-group {
+    position: relative;
+}
+
+.siteforge-color-shades {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.siteforge-color-swatch-group {
+    position: relative;
+}
+
+.siteforge-color-swatch {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.siteforge-color-swatch:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.siteforge-color-swatch.is-selected {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 2px #3858e9, 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.siteforge-color-swatch.is-base {
+    width: 72px;
+    height: 72px;
+}
+
+.siteforge-swatch-label {
+    font-size: 10px;
+    font-weight: 500;
+    padding: 4px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Color picker popover */
+.siteforge-color-picker-popover {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 100;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    padding: 16px;
+    min-width: 280px;
+}
+
+.siteforge-color-picker-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 99;
+}
+
+/* Color Picker */
+.siteforge-color-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.siteforge-color-picker-native {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.siteforge-color-input {
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.siteforge-color-input::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.siteforge-color-input::-webkit-color-swatch {
+    border: none;
+    border-radius: 6px;
+}
+
+.siteforge-color-preview {
+    width: 48px;
+    height: 48px;
+    border-radius: 6px;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.siteforge-color-picker-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.siteforge-color-hex-input input,
+.siteforge-color-oklch-input input {
+    font-family: monospace;
+    font-size: 12px;
+}
+
+.siteforge-color-picker-fields .components-base-control {
+    margin-bottom: 0;
+}
+
+.siteforge-color-picker-fields .components-base-control__help {
+    font-size: 11px;
+    margin-top: 2px;
+}
+
+/* Color Actions */
+.siteforge-color-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* ===================================
+   ADD COLOR MODAL
+   =================================== */
+.siteforge-add-color-modal .components-modal__content {
+    min-width: 400px;
+}
+
+.siteforge-modal-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.siteforge-color-picker-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.siteforge-color-picker-field > label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    color: #757575;
+}
+
+.siteforge-checkbox-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.siteforge-checkbox-field label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.siteforge-field-help {
+    font-size: 12px;
+    color: #757575;
+    margin: 0 0 0 24px;
+}
+
+.siteforge-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 8px;
+    padding-top: 16px;
+    border-top: 1px solid #e0e0e0;
+}
+
+/* Error state */
+.has-error .components-text-control__input {
+    border-color: #d63638;
+}
+
+.has-error .components-base-control__help {
+    color: #d63638;
+}

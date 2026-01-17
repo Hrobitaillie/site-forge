@@ -31,8 +31,8 @@ $container_classes = classes(
 );
 ?>
 
-<section <?php echo block_wrapper(['class' => 'hero-damier py-16 lg:py-24']); ?>>
-    <div class="container mx-auto px-4">
+<section <?php echo block_wrapper(['class' => 'hero-damier bg-primary-200 py-16 lg:py-24']); ?>>
+    <div class="container mx-auto px-4 bg-primary-200">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
 
             <!-- Content Column -->

@@ -27,6 +27,7 @@ import {
     normalizeField,
     createRepeaterItemDefaults,
 } from './helpers';
+import { svgStringToElement } from '../admin/design-system/utils/utils';
 
 // ============================================================================
 // COMPOSANTS UTILITAIRES RÉUTILISABLES
@@ -1169,7 +1170,7 @@ export const RepeaterField = ({ field, value, onChange }) => {
                                     {index > 0 && (
                                         <Button
                                             variant="tertiary"
-                                            icon="arrow-up-alt2"
+                                            icon={svgStringToElement('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-to-line-icon lucide-arrow-up-to-line"><path d="M5 3h14"/><path d="m18 13-6-6-6 6"/><path d="M12 7v14"/></svg>')}
                                             onClick={() => moveItem(index, index - 1)}
                                             label={__('Move up', 'siteforge')}
                                             size="small"
@@ -1178,7 +1179,7 @@ export const RepeaterField = ({ field, value, onChange }) => {
                                     {index < items.length - 1 && (
                                         <Button
                                             variant="tertiary"
-                                            icon="arrow-down-alt2"
+                                            icon={svgStringToElement('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-down-to-line-icon lucide-arrow-down-to-line"><path d="M12 17V3"/><path d="m6 11 6 6 6-6"/><path d="M19 21H5"/></svg>')}
                                             onClick={() => moveItem(index, index + 1)}
                                             label={__('Move down', 'siteforge')}
                                             size="small"
@@ -1187,7 +1188,7 @@ export const RepeaterField = ({ field, value, onChange }) => {
                                     <Button
                                         variant="tertiary"
                                         isDestructive
-                                        icon="trash"
+                                        icon={svgStringToElement('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>')}
                                         onClick={() => removeItem(index)}
                                         label={__('Remove', 'siteforge')}
                                         size="small"

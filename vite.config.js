@@ -18,6 +18,7 @@ const wpExternals = [
   '@wordpress/server-side-render',
   '@wordpress/api-fetch',
   '@wordpress/icons',
+  '@wordpress/notices',
 ];
 
 // Globals WordPress pour le format IIFE
@@ -35,13 +36,33 @@ const wpGlobals = {
   '@wordpress/server-side-render': 'wp.serverSideRender',
   '@wordpress/api-fetch': 'wp.apiFetch',
   '@wordpress/icons': 'wp.icons',
+  '@wordpress/notices': 'wp.notices',
 };
+
+// Get build target from environment variable or default to 'editor'
+const buildTarget = process.env.BUILD_TARGET || 'editor';
+
+// Entry points configuration
+const entryPoints = {
+  editor: {
+    entry: resolve(__dirname, 'assets/js/block-editor/index.jsx'),
+    name: 'SiteForgeEditor',
+    fileName: 'js/editor.js',
+  },
+  'design-system': {
+    entry: resolve(__dirname, 'assets/js/admin/design-system/index.jsx'),
+    name: 'SiteForgeDesignSystem',
+    fileName: 'js/design-system.js',
+  },
+};
+
+const currentEntry = entryPoints[buildTarget];
 
 export default defineConfig({
   plugins: [
     react(),
-    siteforgeBlocksPlugin(), // Affiche les blocs détectés
-  ],
+    buildTarget === 'editor' ? siteforgeBlocksPlugin() : null,
+  ].filter(Boolean),
 
   define: {
     'process.env.NODE_ENV': JSON.stringify('production'),
@@ -49,14 +70,13 @@ export default defineConfig({
 
   build: {
     outDir: 'build',
-    emptyOutDir: true,
+    emptyOutDir: buildTarget === 'editor', // Only empty on first build
 
-    // Build de l'éditeur principal (composants partagés)
     lib: {
-      entry: resolve(__dirname, 'assets/js/block-editor/index.jsx'),
-      name: 'SiteForgeEditor',
+      entry: currentEntry.entry,
+      name: currentEntry.name,
       formats: ['iife'],
-      fileName: () => 'js/editor.js',
+      fileName: () => currentEntry.fileName,
     },
 
     rollupOptions: {

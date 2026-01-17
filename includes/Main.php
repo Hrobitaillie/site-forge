@@ -6,6 +6,7 @@ use SiteForge\Blocks\Blocks;
 use SiteForge\Blocks\FieldRenderer;
 use SiteForge\Blocks\InnerBlocksComponent;
 use SiteForge\RestAPI;
+use SiteForge\DesignSystem\AdminPage;
 
 class Main {
 
@@ -61,6 +62,9 @@ class Main {
 
         $blocks = new Blocks($this->field_renderer);
         $restApi = new RestAPI();
+
+        // Initialize Design System admin page
+        new AdminPage();
     }
 
     /**
